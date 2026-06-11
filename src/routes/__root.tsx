@@ -77,20 +77,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Miken Labs — AI Engineering Lab | Train It · Build It · Ship It" },
+      { title: "Miken Labs" },
       {
         name: "description",
         content:
           "Miken Labs designs, engineers and deploys intelligent systems that help businesses, creators and communities thrive in the age of AI.",
       },
       { name: "author", content: "Miken Labs" },
-      { property: "og:title", content: "Miken Labs — AI Engineering Lab" },
+      { property: "og:title", content: "Miken Labs" },
       {
         property: "og:description",
         content: "We train, build and ship intelligent systems that solve real problems and drive growth.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Miken Labs" },
+      { name: "description", content: "Admin dashboard for managing CMS content: products, research posts, and standards pages." },
+      { property: "og:description", content: "Admin dashboard for managing CMS content: products, research posts, and standards pages." },
+      { name: "twitter:description", content: "Admin dashboard for managing CMS content: products, research posts, and standards pages." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/49632f95-372d-4ac3-814f-d555fbc25f77/id-preview-8291bf44--95f6b3ef-8f4d-4e32-a9c2-50c2c93351fc.lovable.app-1781196616239.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/49632f95-372d-4ac3-814f-d555fbc25f77/id-preview-8291bf44--95f6b3ef-8f4d-4e32-a9c2-50c2c93351fc.lovable.app-1781196616239.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
