@@ -103,10 +103,10 @@ export async function listRows(table: ResourceConfig["table"]) {
 
 export async function upsertRow(table: ResourceConfig["table"], values: Record<string, unknown>, id?: string) {
   if (id) {
-    const { error } = await supabase.from(table).update(values).eq("id", id);
+    const { error } = await supabase.from(table).update(values as never).eq("id", id);
     if (error) throw error;
   } else {
-    const { error } = await supabase.from(table).insert(values);
+    const { error } = await supabase.from(table).insert(values as never);
     if (error) throw error;
   }
 }
