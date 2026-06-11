@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StandardsRouteImport } from './routes/standards'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const StandardsRoute = StandardsRouteImport.update({
   id: '/standards',
   path: '/standards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResearchRoute = ResearchRouteImport.update({
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/products': typeof ProductsRoute
   '/research': typeof ResearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/standards': typeof StandardsRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/products': typeof ProductsRoute
   '/research': typeof ResearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/standards': typeof StandardsRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/products': typeof ProductsRoute
   '/research': typeof ResearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/standards': typeof StandardsRoute
 }
 export interface FileRouteTypes {
@@ -80,9 +89,17 @@ export interface FileRouteTypes {
     | '/contact'
     | '/products'
     | '/research'
+    | '/sitemap.xml'
     | '/standards'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/contact' | '/products' | '/research' | '/standards'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/products'
+    | '/research'
+    | '/sitemap.xml'
+    | '/standards'
   id:
     | '__root__'
     | '/'
@@ -90,6 +107,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/products'
     | '/research'
+    | '/sitemap.xml'
     | '/standards'
   fileRoutesById: FileRoutesById
 }
@@ -99,6 +117,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   ProductsRoute: typeof ProductsRoute
   ResearchRoute: typeof ResearchRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StandardsRoute: typeof StandardsRoute
 }
 
@@ -109,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/standards'
       fullPath: '/standards'
       preLoaderRoute: typeof StandardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/research': {
@@ -155,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   ProductsRoute: ProductsRoute,
   ResearchRoute: ResearchRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StandardsRoute: StandardsRoute,
 }
 export const routeTree = rootRouteImport
