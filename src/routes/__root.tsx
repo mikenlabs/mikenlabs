@@ -92,11 +92,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Miken Labs" },
-      { name: "description", content: "Admin dashboard for managing CMS content: products, research posts, and standards pages." },
-      { property: "og:description", content: "Admin dashboard for managing CMS content: products, research posts, and standards pages." },
-      { name: "twitter:description", content: "Admin dashboard for managing CMS content: products, research posts, and standards pages." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/49632f95-372d-4ac3-814f-d555fbc25f77/id-preview-8291bf44--95f6b3ef-8f4d-4e32-a9c2-50c2c93351fc.lovable.app-1781196616239.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/49632f95-372d-4ac3-814f-d555fbc25f77/id-preview-8291bf44--95f6b3ef-8f4d-4e32-a9c2-50c2c93351fc.lovable.app-1781196616239.png" },
+      {
+        name: "twitter:description",
+        content: "Miken Labs designs, engineers and deploys intelligent systems for businesses, creators and communities.",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

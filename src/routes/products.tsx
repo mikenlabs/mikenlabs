@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { PageLayout, Badge, StatusBadge } from "@/components/Layout";
 import { CircuitBackground } from "@/components/CircuitBackground";
 import { useReveal } from "@/hooks/use-reveal";
-import { products } from "@/lib/site-data";
+import { listProductsPublic } from "@/lib/api/products.functions";
 
 export const Route = createFileRoute("/products")({
   head: () => ({
@@ -19,6 +20,11 @@ export const Route = createFileRoute("/products")({
 
 function Products() {
   const ref = useReveal<HTMLDivElement>();
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["products-public"],
+    queryFn: listProductsPublic,
+  });
+
   return (
     <PageLayout>
       <div ref={ref}>
@@ -38,33 +44,43 @@ function Products() {
         </section>
 
         <section className="mx-auto max-w-[1200px] px-6 py-24 lg:px-12">
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {products.map((p) => (
-              <div
-                key={p.slug}
-                className="reveal group flex flex-col rounded-xl border border-border bg-surface p-6 transition-all hover:border-brand-bright hover:shadow-glow"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand-gradient font-display text-base font-bold text-primary-foreground">
-                    {p.name.charAt(0)}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-glow border-t-transparent" />
+            </div>
+          ) : !products || products.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border bg-surface p-12 text-center text-muted-foreground">
+              No products available yet. Check back soon.
+            </div>
+          ) : (
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {products.map((p) => (
+                <div
+                  key={p.id}
+                  className="reveal group flex flex-col rounded-xl border border-border bg-surface p-6 transition-all hover:border-brand-bright hover:shadow-glow"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand-gradient font-display text-base font-bold text-primary-foreground">
+                      {p.name.charAt(0)}
+                    </div>
+                    <StatusBadge status={p.status} />
                   </div>
-                  <StatusBadge status={p.status} />
+                  <h3 className="mt-5 font-display text-lg font-bold">{p.name}</h3>
+                  <p className="mt-2 flex-1 text-sm text-muted-foreground">{p.short_description}</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {(p.tags ?? []).map((t) => (
+                      <span key={t} className="rounded-md bg-brand/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-brand-glow">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <span className="mt-5 inline-flex items-center gap-1 text-sm text-brand-glow group-hover:gap-2 transition-all">
+                    View Product <ArrowRight className="h-4 w-4" />
+                  </span>
                 </div>
-                <h3 className="mt-5 font-display text-lg font-bold">{p.name}</h3>
-                <p className="mt-2 flex-1 text-sm text-muted-foreground">{p.short}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {p.tags.map((t) => (
-                    <span key={t} className="rounded-md bg-brand/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-brand-glow">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <span className="mt-5 inline-flex items-center gap-1 text-sm text-brand-glow group-hover:gap-2 transition-all">
-                  View Product <ArrowRight className="h-4 w-4" />
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </PageLayout>

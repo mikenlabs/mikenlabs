@@ -1,4 +1,21 @@
-import { supabase } from "@/integrations/supabase/client";
+import {
+  listProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "@/lib/api/products.functions";
+import {
+  listResearch,
+  createResearch,
+  updateResearch,
+  deleteResearch,
+} from "@/lib/api/research.functions";
+import {
+  listStandards,
+  createStandard,
+  updateStandard,
+  deleteStandard,
+} from "@/lib/api/standards.functions";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type FieldType = "text" | "textarea" | "tags" | "select" | "checkbox" | "number";
@@ -92,28 +109,56 @@ export const standardsConfig: ResourceConfig = {
 export type AnyRow = Tables<"products"> | Tables<"research"> | Tables<"standards">;
 
 export async function listRows(table: ResourceConfig["table"]) {
-  const { data, error } = await supabase
-    .from(table)
-    .select("*")
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  return data;
+  switch (table) {
+    case "products":
+      return listProducts() as Promise<AnyRow[]>;
+    case "research":
+      return listResearch() as Promise<AnyRow[]>;
+    case "standards":
+      return listStandards() as Promise<AnyRow[]>;
+  }
 }
 
 export async function upsertRow(table: ResourceConfig["table"], values: Record<string, unknown>, id?: string) {
   if (id) {
-    const { error } = await supabase.from(table).update(values as never).eq("id", id);
-    if (error) throw error;
+    switch (table) {
+      case "products":
+        await updateProduct({ id, data: values });
+        break;
+      case "research":
+        await updateResearch({ id, data: values });
+        break;
+      case "standards":
+        await updateStandard({ id, data: values });
+        break;
+    }
   } else {
-    const { error } = await supabase.from(table).insert(values as never);
-    if (error) throw error;
+    switch (table) {
+      case "products":
+        await createProduct(values as never);
+        break;
+      case "research":
+        await createResearch(values as never);
+        break;
+      case "standards":
+        await createStandard(values as never);
+        break;
+    }
   }
 }
 
 export async function deleteRow(table: ResourceConfig["table"], id: string) {
-  const { error } = await supabase.from(table).delete().eq("id", id);
-  if (error) throw error;
+  switch (table) {
+    case "products":
+      await deleteProduct({ id });
+      break;
+    case "research":
+      await deleteResearch({ id });
+      break;
+    case "standards":
+      await deleteStandard({ id });
+      break;
+  }
 }
 
 export function slugify(value: string) {

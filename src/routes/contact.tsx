@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Mail, Globe, Send } from "lucide-react";
 import { PageLayout, Badge } from "@/components/Layout";
 import { CircuitBackground } from "@/components/CircuitBackground";
 import { brand } from "@/lib/site-data";
+import { submitContact } from "@/lib/api/contact.functions";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -19,6 +21,27 @@ export const Route = createFileRoute("/contact")({
 
 function Contact() {
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await submitContact({ data: formData });
+      setSent(true);
+      toast.success("Message sent! We'll be in touch soon.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to send message");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function updateField(field: string, value: string) {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }
+
   return (
     <PageLayout>
       <section className="relative overflow-hidden">
@@ -50,26 +73,29 @@ function Contact() {
                 <p className="mt-2 text-muted-foreground">Thanks for reaching out — we'll be in touch soon.</p>
               </div>
             ) : (
-              <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+              <form className="space-y-4" onSubmit={handleSubmit}>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Name" name="name" placeholder="Your name" />
-                  <Field label="Email" name="email" type="email" placeholder="you@example.com" />
+                  <Field label="Name" name="name" placeholder="Your name" value={formData.name} onChange={(v) => updateField("name", v)} />
+                  <Field label="Email" name="email" type="email" placeholder="you@example.com" value={formData.email} onChange={(v) => updateField("email", v)} />
                 </div>
-                <Field label="Subject" name="subject" placeholder="How can we help?" />
+                <Field label="Subject" name="subject" placeholder="How can we help?" value={formData.subject} onChange={(v) => updateField("subject", v)} />
                 <div>
                   <label className="mb-1.5 block text-sm font-medium">Message</label>
                   <textarea
                     required
                     rows={5}
+                    value={formData.message}
+                    onChange={(e) => updateField("message", e.target.value)}
                     placeholder="Tell us about your project..."
                     className="w-full resize-none rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-brand-bright focus:ring-2 focus:ring-ring/40"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-6 py-3 font-medium text-primary-foreground transition-all hover:bg-brand-bright hover:shadow-glow"
+                  disabled={busy}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-6 py-3 font-medium text-primary-foreground transition-all hover:bg-brand-bright hover:shadow-glow disabled:opacity-60"
                 >
-                  Send Message <Send className="h-4 w-4" />
+                  {busy ? "Sending..." : "Send Message"} <Send className="h-4 w-4" />
                 </button>
               </form>
             )}
@@ -80,7 +106,10 @@ function Contact() {
   );
 }
 
-function Field({ label, name, type = "text", placeholder }: { label: string; name: string; type?: string; placeholder?: string }) {
+function Field({ label, name, type = "text", placeholder, value, onChange }: {
+  label: string; name: string; type?: string; placeholder?: string;
+  value: string; onChange: (v: string) => void;
+}) {
   return (
     <div>
       <label className="mb-1.5 block text-sm font-medium">{label}</label>
@@ -88,6 +117,8 @@ function Field({ label, name, type = "text", placeholder }: { label: string; nam
         name={name}
         type={type}
         required
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="w-full rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-brand-bright focus:ring-2 focus:ring-ring/40"
       />

@@ -1,4 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   ArrowRight,
   ChevronDown,
@@ -7,11 +10,14 @@ import {
   Smartphone,
   BrainCircuit,
   Lightbulb,
+  CheckCircle2,
 } from "lucide-react";
 import { PageLayout, Badge, SectionHeading, StatusBadge } from "@/components/Layout";
 import { CircuitBackground } from "@/components/CircuitBackground";
 import { useReveal } from "@/hooks/use-reveal";
-import { brand, stats, services, products, articles } from "@/lib/site-data";
+import { brand, stats, services, articles } from "@/lib/site-data";
+import { listProductsPublic } from "@/lib/api/products.functions";
+import { subscribeNewsletter } from "@/lib/api/newsletter.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,6 +40,12 @@ const serviceIcons = { GraduationCap, Code2, Smartphone, BrainCircuit, Lightbulb
 
 function Home() {
   const ref = useReveal<HTMLDivElement>();
+  const { data: products } = useQuery({
+    queryKey: ["products-public"],
+    queryFn: listProductsPublic,
+  });
+
+  const displayProducts = products && products.length > 0 ? products.slice(0, 3) : null;
 
   return (
     <PageLayout>
@@ -137,31 +149,45 @@ function Home() {
               </Link>
             </div>
             <div className="mt-12 grid gap-5 md:grid-cols-3">
-              {products.slice(0, 3).map((p) => (
-                <div
-                  key={p.slug}
-                  className="reveal group flex flex-col rounded-xl border border-border bg-surface p-6 transition-all hover:border-brand-bright hover:shadow-glow"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-gradient font-display text-sm font-bold text-primary-foreground">
-                      {p.name.charAt(0)}
+              {displayProducts
+                ? displayProducts.map((p) => (
+                    <div
+                      key={p.id}
+                      className="reveal group flex flex-col rounded-xl border border-border bg-surface p-6 transition-all hover:border-brand-bright hover:shadow-glow"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-gradient font-display text-sm font-bold text-primary-foreground">
+                          {p.name.charAt(0)}
+                        </div>
+                        <StatusBadge status={p.status} />
+                      </div>
+                      <h3 className="mt-5 font-display text-lg font-bold">{p.name}</h3>
+                      <p className="mt-2 flex-1 text-sm text-muted-foreground">{p.short_description}</p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {(p.tags ?? []).map((t) => (
+                          <span key={t} className="rounded-md bg-brand/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-brand-glow">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                      <Link to="/products" className="mt-5 inline-flex items-center gap-1 text-sm text-brand-glow group-hover:gap-2 transition-all">
+                        View Product <ArrowRight className="h-4 w-4" />
+                      </Link>
                     </div>
-                    <StatusBadge status={p.status} />
-                  </div>
-                  <h3 className="mt-5 font-display text-lg font-bold">{p.name}</h3>
-                  <p className="mt-2 flex-1 text-sm text-muted-foreground">{p.short}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {p.tags.map((t) => (
-                      <span key={t} className="rounded-md bg-brand/10 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-brand-glow">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <Link to="/products" className="mt-5 inline-flex items-center gap-1 text-sm text-brand-glow group-hover:gap-2 transition-all">
-                    View Product <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              ))}
+                  ))
+                : products === undefined
+                  ? Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="animate-pulse rounded-xl border border-border bg-surface p-6">
+                        <div className="h-10 w-10 rounded-lg bg-brand/20" />
+                        <div className="mt-5 h-5 w-3/4 rounded bg-brand/10" />
+                        <div className="mt-2 h-4 w-full rounded bg-brand/5" />
+                        <div className="mt-4 flex gap-2">
+                          <div className="h-5 w-14 rounded bg-brand/10" />
+                          <div className="h-5 w-14 rounded bg-brand/10" />
+                        </div>
+                      </div>
+                    ))
+                  : null}
             </div>
           </div>
         </section>
@@ -206,40 +232,64 @@ function Home() {
 }
 
 function Newsletter() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await subscribeNewsletter({ data: { email } });
+      setSubscribed(true);
+      setEmail("");
+      toast.success("Subscribed! Check your inbox for updates.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Subscription failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <section className="border-t border-border bg-surface">
       <div className="relative mx-auto max-w-[1200px] overflow-hidden px-6 py-20 lg:px-12">
         <div className="absolute inset-0 bg-hero-glow opacity-60" />
         <div className="relative mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold md:text-4xl">Stay ahead of the curve.</h2>
-          <p className="mt-4 text-muted-foreground">
-            Get AI insights, lab updates and engineering deep-dives — directly to your inbox.
-          </p>
-          <form
-            className="mt-8 flex flex-col gap-3 sm:flex-row"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const input = (e.currentTarget.elements.namedItem("email") as HTMLInputElement);
-              if (input?.value) {
-                input.value = "";
-                alert("Thanks for subscribing! We'll be in touch.");
-              }
-            }}
-          >
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="Email address"
-              className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-brand-bright focus:ring-2 focus:ring-ring/40"
-            />
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-6 py-3 font-medium text-primary-foreground transition-all hover:bg-brand-bright hover:shadow-glow"
-            >
-              Subscribe <ArrowRight className="h-4 w-4" />
-            </button>
-          </form>
+          {subscribed ? (
+            <div className="flex flex-col items-center">
+              <CheckCircle2 className="h-12 w-12 text-[oklch(0.7_0.16_150)]" />
+              <h2 className="mt-4 text-3xl font-bold md:text-4xl">You're in!</h2>
+              <p className="mt-4 text-muted-foreground">
+                Thanks for subscribing. We'll send AI insights and updates straight to your inbox.
+              </p>
+            </div>
+          ) : (
+            <>
+              <h2 className="text-3xl font-bold md:text-4xl">Stay ahead of the curve.</h2>
+              <p className="mt-4 text-muted-foreground">
+                Get AI insights, lab updates and engineering deep-dives — directly to your inbox.
+              </p>
+              <form className="mt-8 flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email address"
+                  className="flex-1 rounded-lg border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-brand-bright focus:ring-2 focus:ring-ring/40"
+                />
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-6 py-3 font-medium text-primary-foreground transition-all hover:bg-brand-bright hover:shadow-glow disabled:opacity-60"
+                >
+                  {busy ? "Subscribing..." : "Subscribe"} <ArrowRight className="h-4 w-4" />
+                </button>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </section>

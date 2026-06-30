@@ -1,14 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck, Eye, Scale, Users, Activity, Lock } from "lucide-react";
 import { PageLayout, Badge, SectionHeading } from "@/components/Layout";
 import { CircuitBackground } from "@/components/CircuitBackground";
 import { useReveal } from "@/hooks/use-reveal";
+import { listStandards } from "@/lib/api/standards.functions";
 
 export const Route = createFileRoute("/standards")({
   head: () => ({
     meta: [
       { title: "AI Standards & Responsible AI | Miken Labs" },
-      { name: "description", content: "Miken Labs' commitment to ethical, responsible and human-centered AI — covering governance, safety, transparency and model evaluation." },
+      { name: "description", content: "Miken Labs' commitment to ethical, responsible and human-centered AI." },
       { property: "og:title", content: "AI Standards & Responsible AI | Miken Labs" },
       { property: "og:description", content: "Building AI with safety, transparency and human benefit in mind." },
     ],
@@ -16,7 +18,11 @@ export const Route = createFileRoute("/standards")({
   component: Standards,
 });
 
-const topics = [
+const iconMap: Record<string, React.ElementType> = {
+  ShieldCheck, Eye, Scale, Users, Activity, Lock,
+};
+
+const fallbackTopics = [
   { icon: Scale, title: "Ethical & Responsible AI", desc: "Principles and guardrails that keep AI aligned with human values." },
   { icon: ShieldCheck, title: "AI Governance", desc: "Clear processes for accountability across the model lifecycle." },
   { icon: Activity, title: "Model Evaluation", desc: "Rigorous testing for accuracy, robustness and bias before shipping." },
@@ -27,6 +33,19 @@ const topics = [
 
 function Standards() {
   const ref = useReveal<HTMLDivElement>();
+  const { data: dbStandards, isLoading } = useQuery({
+    queryKey: ["standards-public"],
+    queryFn: listStandards,
+  });
+
+  const topics = dbStandards && dbStandards.length > 0
+    ? dbStandards.map((s) => ({
+        icon: iconMap[s.icon] ?? ShieldCheck,
+        title: s.title,
+        desc: s.description ?? "",
+      }))
+    : fallbackTopics;
+
   return (
     <PageLayout>
       <div ref={ref}>
@@ -47,17 +66,23 @@ function Standards() {
 
         <section className="mx-auto max-w-[1200px] px-6 py-24 lg:px-12">
           <SectionHeading center eyebrow="Our Principles" title="How we build responsibly" />
-          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {topics.map((t) => (
-              <div key={t.title} className="reveal rounded-xl border border-border bg-surface p-6 transition-all hover:border-brand-bright hover:shadow-glow">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand/15 text-brand-glow">
-                  <t.icon className="h-5 w-5" />
+          {isLoading ? (
+            <div className="mt-14 flex items-center justify-center py-10">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-glow border-t-transparent" />
+            </div>
+          ) : (
+            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {topics.map((t) => (
+                <div key={t.title} className="reveal rounded-xl border border-border bg-surface p-6 transition-all hover:border-brand-bright hover:shadow-glow">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand/15 text-brand-glow">
+                    <t.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-4 font-display text-lg font-bold">{t.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{t.desc}</p>
                 </div>
-                <h3 className="mt-4 font-display text-lg font-bold">{t.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{t.desc}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </PageLayout>
