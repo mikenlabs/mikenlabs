@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const courseSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -23,6 +22,7 @@ export const listCourses = createServerFn({ method: "GET" })
   .handler(async () => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("courses")
       .select("*")
@@ -34,6 +34,7 @@ export const listCourses = createServerFn({ method: "GET" })
 
 export const listCoursesPublic = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("courses")
       .select("*")
@@ -48,6 +49,7 @@ export const createCourse = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("courses").insert(data as never);
     if (error) throw new Error(error.message);
     return { success: true };
@@ -58,6 +60,7 @@ export const updateCourse = createServerFn({ method: "POST" })
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("courses").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };
@@ -68,6 +71,7 @@ export const deleteCourse = createServerFn({ method: "POST" })
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("courses").delete().eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };

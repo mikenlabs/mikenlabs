@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const researchSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -22,6 +21,7 @@ export const listResearch = createServerFn({ method: "GET" })
   .handler(async () => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("research")
       .select("*")
@@ -33,6 +33,7 @@ export const listResearch = createServerFn({ method: "GET" })
 
 export const listResearchPublic = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("research")
       .select("*")
@@ -47,6 +48,7 @@ export const createResearch = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("research").insert(data as never);
     if (error) throw new Error(error.message);
     return { success: true };
@@ -57,6 +59,7 @@ export const updateResearch = createServerFn({ method: "POST" })
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("research").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };
@@ -67,6 +70,7 @@ export const deleteResearch = createServerFn({ method: "POST" })
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("research").delete().eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };

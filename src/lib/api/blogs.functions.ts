@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const blogSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -22,6 +21,7 @@ export const listBlogs = createServerFn({ method: "GET" })
   .handler(async () => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("blogs")
       .select("*")
@@ -32,6 +32,7 @@ export const listBlogs = createServerFn({ method: "GET" })
 
 export const listBlogsPublic = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("blogs")
       .select("*")
@@ -45,6 +46,7 @@ export const createBlog = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("blogs").insert(data as never);
     if (error) throw new Error(error.message);
     return { success: true };
@@ -55,6 +57,7 @@ export const updateBlog = createServerFn({ method: "POST" })
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("blogs").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };
@@ -65,6 +68,7 @@ export const deleteBlog = createServerFn({ method: "POST" })
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("blogs").delete().eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };
