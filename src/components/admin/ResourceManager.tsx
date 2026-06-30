@@ -205,7 +205,7 @@ export function ResourceManager({ config }: { config: ResourceConfig }) {
                         type="checkbox"
                         checked={!!form[f.name]}
                         onChange={(e) => setForm({ ...form, [f.name]: e.target.checked })}
-                        className="h-4 w-4 accent-[oklch(0.62_0.19_257)]"
+                        className="h-4 w-4 accent-[#0B5FA5]"
                       />
                       {f.label}
                     </label>

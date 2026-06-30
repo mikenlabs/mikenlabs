@@ -24,7 +24,7 @@ function NotFoundComponent() {
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-md bg-brand px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-brand-bright"
           >
             Go home
           </Link>
@@ -56,7 +56,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-md bg-brand px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-brand-bright"
           >
             Try again
           </button>
@@ -77,32 +77,36 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Miken Labs" },
+      { title: "Miken Labs — Train It • Build It • Ship It" },
       {
         name: "description",
         content:
-          "Miken Labs designs, engineers and deploys intelligent systems that help businesses, creators and communities thrive in the age of AI.",
+          "Miken Labs empowers individuals and businesses through practical technology education, software engineering, AI innovation, and digital transformation.",
       },
       { name: "author", content: "Miken Labs" },
-      { property: "og:title", content: "Miken Labs" },
+      { property: "og:title", content: "Miken Labs — Train It • Build It • Ship It" },
       {
         property: "og:description",
-        content: "We train, build and ship intelligent systems that solve real problems and drive growth.",
+        content: "Empowering individuals and businesses through practical technology education, software engineering, AI innovation, and digital transformation.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://mikenlabs.com" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Miken Labs" },
+      { name: "twitter:title", content: "Miken Labs — Train It • Build It • Ship It" },
       {
         name: "twitter:description",
-        content: "Miken Labs designs, engineers and deploys intelligent systems for businesses, creators and communities.",
+        content: "Empowering individuals through practical technology education, AI innovation, and digital transformation.",
       },
     ],
     links: [
+      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+      { rel: "shortcut icon", type: "image/x-icon", href: "/favicon.ico" },
+      { rel: "apple-touch-icon", href: "/favicon.ico" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=JetBrains+Mono:wght@400;500&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap",
       },
       {
         rel: "stylesheet",
@@ -118,7 +122,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
@@ -135,7 +139,6 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
   );

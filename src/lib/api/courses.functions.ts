@@ -3,30 +3,28 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdmin } from "@/lib/auth-helpers.server";
 
-const productSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+const courseSchema = z.object({
+  title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required"),
-  short_description: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
-  tags: z.array(z.string()).default([]),
-  status: z.string().default("LIVE"),
-  category: z.string().default("ai_product"),
-  demo_url: z.string().nullable().optional(),
-  github_url: z.string().nullable().optional(),
-  docs_url: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  duration: z.string().nullable().optional(),
+  level: z.string().nullable().optional(),
+  topics: z.array(z.string()).default([]),
+  status: z.string().default("active"),
   image_url: z.string().nullable().optional(),
-  live_url: z.string().nullable().optional(),
+  enrollment_url: z.string().nullable().optional(),
   featured: z.boolean().default(false),
   sort_order: z.number().default(0),
 });
 
-const productUpdateSchema = productSchema.partial();
+const courseUpdateSchema = courseSchema.partial();
 
-export const listProducts = createServerFn({ method: "GET" })
+export const listCourses = createServerFn({ method: "GET" })
   .handler(async () => {
     await requireAdmin();
     const { data, error } = await supabaseAdmin
-      .from("products")
+      .from("courses")
       .select("*")
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
@@ -34,10 +32,10 @@ export const listProducts = createServerFn({ method: "GET" })
     return data;
   });
 
-export const listProductsPublic = createServerFn({ method: "GET" })
+export const listCoursesPublic = createServerFn({ method: "GET" })
   .handler(async () => {
     const { data, error } = await supabaseAdmin
-      .from("products")
+      .from("courses")
       .select("*")
       .order("sort_order", { ascending: true })
       .order("created_at", { ascending: false });
@@ -45,29 +43,29 @@ export const listProductsPublic = createServerFn({ method: "GET" })
     return data;
   });
 
-export const createProduct = createServerFn({ method: "POST" })
-  .validator(productSchema)
+export const createCourse = createServerFn({ method: "POST" })
+  .validator(courseSchema)
   .handler(async ({ data }) => {
     await requireAdmin();
-    const { error } = await supabaseAdmin.from("products").insert(data as never);
+    const { error } = await supabaseAdmin.from("courses").insert(data as never);
     if (error) throw new Error(error.message);
     return { success: true };
   });
 
-export const updateProduct = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: productUpdateSchema }))
+export const updateCourse = createServerFn({ method: "POST" })
+  .validator(z.object({ id: z.string(), data: courseUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     await requireAdmin();
-    const { error } = await supabaseAdmin.from("products").update(data as never).eq("id", id);
+    const { error } = await supabaseAdmin.from("courses").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };
   });
 
-export const deleteProduct = createServerFn({ method: "POST" })
+export const deleteCourse = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     await requireAdmin();
-    const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
+    const { error } = await supabaseAdmin.from("courses").delete().eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };
   });

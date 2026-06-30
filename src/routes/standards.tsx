@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck, Eye, Scale, Users, Activity, Lock } from "lucide-react";
-import { PageLayout, Badge, SectionHeading } from "@/components/Layout";
-import { CircuitBackground } from "@/components/CircuitBackground";
+import { PageLayout, Badge, SectionHeading, Container } from "@/components/Layout";
 import { useReveal } from "@/hooks/use-reveal";
 import { listStandards } from "@/lib/api/standards.functions";
 
@@ -49,40 +48,41 @@ function Standards() {
   return (
     <PageLayout>
       <div ref={ref}>
-        <section className="relative overflow-hidden border-b border-border">
-          <div className="absolute inset-0 bg-hero-glow" />
-          <CircuitBackground />
-          <div className="relative mx-auto max-w-[1200px] px-6 pt-36 pb-20 lg:px-12">
-            <Badge>Responsible AI</Badge>
-            <h1 className="reveal mt-6 max-w-3xl text-4xl font-extrabold md:text-6xl">
-              AI built with <span className="text-gradient">trust</span> at the core
-            </h1>
-            <p className="reveal mt-6 max-w-2xl text-lg text-muted-foreground">
-              We believe powerful technology demands responsibility. These are the standards
-              that guide how we research, build and ship AI.
-            </p>
-          </div>
+        <section className="relative overflow-hidden bg-hero-glow border-b border-border">
+          <Container>
+            <div className="pt-36 pb-20">
+              <Badge>Responsible AI</Badge>
+              <h1 className="reveal mt-6 max-w-3xl text-4xl font-extrabold text-foreground md:text-6xl">
+                AI built with <span className="text-gradient">trust</span> at the core
+              </h1>
+              <p className="reveal mt-6 max-w-2xl text-lg text-muted-foreground">
+                We believe powerful technology demands responsibility. These are the standards that guide how we research, build and ship AI.
+              </p>
+            </div>
+          </Container>
         </section>
 
-        <section className="mx-auto max-w-[1200px] px-6 py-24 lg:px-12">
-          <SectionHeading center eyebrow="Our Principles" title="How we build responsibly" />
-          {isLoading ? (
-            <div className="mt-14 flex items-center justify-center py-10">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-glow border-t-transparent" />
-            </div>
-          ) : (
-            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {topics.map((t) => (
-                <div key={t.title} className="reveal rounded-xl border border-border bg-surface p-6 transition-all hover:border-brand-bright hover:shadow-glow">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand/15 text-brand-glow">
-                    <t.icon className="h-5 w-5" />
+        <section className="py-24">
+          <Container>
+            <SectionHeading center eyebrow="Our Principles" title="How we build responsibly" />
+            {isLoading ? (
+              <div className="mt-14 flex items-center justify-center py-10">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-t-transparent" />
+              </div>
+            ) : (
+              <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {topics.map((t) => (
+                  <div key={t.title} className="reveal rounded-xl border border-border bg-white p-6 transition-all hover:border-brand/30 hover:shadow-card-hover">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                      <t.icon className="h-5 w-5" />
+                    </div>
+                    <h3 className="mt-4 font-display text-lg font-bold text-foreground">{t.title}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">{t.desc}</p>
                   </div>
-                  <h3 className="mt-4 font-display text-lg font-bold">{t.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{t.desc}</p>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </Container>
         </section>
       </div>
     </PageLayout>

@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireAdmin } from "@/lib/auth-helpers.server";
+import { rateLimit } from "@/lib/rate-limit.server";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
@@ -12,6 +14,7 @@ const contactSchema = z.object({
 export const submitContact = createServerFn({ method: "POST" })
   .validator(contactSchema)
   .handler(async ({ data }) => {
+    rateLimit({ max: 5, windowMs: 60_000 });
     const { error } = await supabaseAdmin
       .from("contact_submissions")
       .insert({ name: data.name, email: data.email, subject: data.subject, message: data.message });
@@ -21,6 +24,7 @@ export const submitContact = createServerFn({ method: "POST" })
 
 export const listContactSubmissions = createServerFn({ method: "GET" })
   .handler(async () => {
+    await requireAdmin();
     const { data, error } = await supabaseAdmin
       .from("contact_submissions")
       .select("*")
@@ -32,6 +36,7 @@ export const listContactSubmissions = createServerFn({ method: "GET" })
 export const deleteContactSubmission = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
+    await requireAdmin();
     const { error } = await supabaseAdmin.from("contact_submissions").delete().eq("id", id);
     if (error) throw new Error(error.message);
     return { success: true };

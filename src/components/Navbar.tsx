@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, ArrowRight, Shield } from "lucide-react";
+import { Menu, X, ChevronDown, Shield } from "lucide-react";
 import { brand, navLinks } from "@/lib/site-data";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -33,22 +33,24 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        scrolled ? "border-b border-border bg-surface/85 backdrop-blur-xl" : "bg-transparent"
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "border-b border-border bg-white/90 backdrop-blur-xl shadow-sm"
+          : "bg-transparent"
       }`}
     >
       <nav className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6 lg:px-12">
         <Link to="/" className="flex items-center gap-3">
           <img src={brand.logo} alt="Miken Labs logo" className="h-9 w-9 rounded-md object-cover" />
-          <span className="font-display text-lg font-bold tracking-tight">MIKEN LABS</span>
+          <span className="font-display text-lg font-bold tracking-tight text-foreground">MIKEN LABS</span>
         </Link>
 
-        <div className="hidden items-center gap-8 lg:flex">
+        <div className="hidden items-center gap-1 lg:flex">
           {navLinks.map((l) => (
             <Link
               key={l.to}
               to={l.to}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface hover:text-foreground [&.active]:bg-brand/10 [&.active]:text-brand"
             >
               {l.label}
             </Link>
@@ -56,20 +58,11 @@ export function Navbar() {
           {showAdmin && (
             <Link
               to="/admin"
-              className="flex items-center gap-1.5 text-sm text-brand-glow transition-colors hover:text-brand-bright"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand/10"
             >
               <Shield className="h-3.5 w-3.5" /> Admin
             </Link>
           )}
-        </div>
-
-        <div className="hidden lg:block">
-          <Link
-            to="/contact"
-            className="inline-flex items-center gap-2 rounded-lg border border-brand-bright bg-brand px-4 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-brand-bright hover:shadow-glow"
-          >
-            Contact Us <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
 
         <button
@@ -77,25 +70,25 @@ export function Navbar() {
           aria-label="Open menu"
           onClick={() => setOpen(true)}
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="h-6 w-6 text-foreground" />
         </button>
       </nav>
 
       {open && (
-        <div className="fixed inset-0 z-50 bg-background/98 backdrop-blur-xl lg:hidden">
+        <div className="fixed inset-0 z-50 bg-white/98 backdrop-blur-xl lg:hidden">
           <div className="flex h-16 items-center justify-between px-6">
-            <span className="font-display text-lg font-bold">MIKEN LABS</span>
+            <span className="font-display text-lg font-bold text-foreground">MIKEN LABS</span>
             <button aria-label="Close menu" onClick={() => setOpen(false)}>
-              <X className="h-6 w-6" />
+              <X className="h-6 w-6 text-foreground" />
             </button>
           </div>
-          <div className="flex flex-col gap-2 px-6 pt-6">
+          <div className="flex flex-col gap-1 px-6 pt-4">
             {navLinks.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
                 onClick={() => setOpen(false)}
-                className="border-b border-border py-4 text-lg"
+                className="rounded-lg px-4 py-3 text-foreground transition-colors hover:bg-surface"
               >
                 {l.label}
               </Link>
@@ -104,18 +97,11 @@ export function Navbar() {
               <Link
                 to="/admin"
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2 border-b border-border py-4 text-lg text-brand-glow"
+                className="flex items-center gap-2 rounded-lg px-4 py-3 text-brand transition-colors hover:bg-brand/10"
               >
                 <Shield className="h-4 w-4" /> Admin
               </Link>
             )}
-            <Link
-              to="/contact"
-              onClick={() => setOpen(false)}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-3 font-medium text-primary-foreground"
-            >
-              Contact Us <ArrowRight className="h-4 w-4" />
-            </Link>
           </div>
         </div>
       )}
