@@ -9,10 +9,10 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     tsconfigPaths(),
-    viteReact(),
     tanstackStart({
       server: { entry: "server" },
     }),
+    viteReact(),
     nitro(),
   ],
 });
