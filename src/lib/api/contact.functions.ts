@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { query } from "@/lib/db.server";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
@@ -12,35 +13,26 @@ export const submitContact = createServerFn({ method: "POST" })
   .inputValidator(contactSchema)
   .handler(async ({ data }) => {
     const { rateLimit } = await import("@/lib/rate-limit.server");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     rateLimit({ max: 5, windowMs: 60_000 });
-    const { error } = await supabaseAdmin
-      .from("contact_submissions")
-      .insert({ name: data.name, email: data.email, subject: data.subject, message: data.message });
-    if (error) throw new Error(error.message);
+    await query(
+      "INSERT INTO contact_submissions (name, email, subject, message) VALUES ($1, $2, $3, $4)",
+      [data.name, data.email, data.subject, data.message]
+    );
     return { success: true };
   });
 
 export const listContactSubmissions = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("contact_submissions")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data;
+    return await query("SELECT * FROM contact_submissions ORDER BY created_at DESC");
   });
 
 export const deleteContactSubmission = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("contact_submissions").delete().eq("id", id);
-    if (error) throw new Error(error.message);
+    await query("DELETE FROM contact_submissions WHERE id = $1", [id]);
     return { success: true };
   });

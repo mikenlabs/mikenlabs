@@ -2,9 +2,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { brand } from "@/lib/site-data";
-import { signupAdmin, checkHasAdmin } from "@/lib/api/auth.functions";
+import { signupAdmin, checkHasAdmin, login } from "@/lib/api/auth.functions";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -19,16 +19,16 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { getToken, setToken } = useAuth();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin" });
-    });
-  }, [navigate]);
+    const token = getToken();
+    if (token) navigate({ to: "/admin" });
+  }, [navigate, getToken]);
 
   useEffect(() => {
     checkHasAdmin().then((r) => {
@@ -49,8 +49,8 @@ function AuthPage() {
         }
         setMode("login");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const result = await login({ data: { email, password } });
+        setToken(result.token);
         navigate({ to: "/admin" });
       }
     } catch (err) {

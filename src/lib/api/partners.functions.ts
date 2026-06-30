@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { query } from "@/lib/db.server";
 
 const partnerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -15,59 +16,47 @@ const partnerUpdateSchema = partnerSchema.partial();
 
 export const listPartners = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("partners")
-      .select("*")
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data;
+    return await query("SELECT * FROM partners ORDER BY sort_order ASC, created_at DESC");
   });
 
 export const listPartnersPublic = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("partners")
-      .select("*")
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data;
+    return await query("SELECT * FROM partners ORDER BY sort_order ASC, created_at DESC");
   });
 
 export const createPartner = createServerFn({ method: "POST" })
   .inputValidator(partnerSchema)
   .handler(async ({ data }) => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("partners").insert(data as never);
-    if (error) throw new Error(error.message);
+    await query(
+      "INSERT INTO partners (name, website_url, logo_url, description, category, featured, sort_order) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+      [data.name, data.website_url, data.logo_url, data.description, data.category, data.featured, data.sort_order]
+    );
     return { success: true };
   });
 
 export const updatePartner = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string(), data: partnerUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("partners").update(data as never).eq("id", id);
-    if (error) throw new Error(error.message);
+    const fields = Object.entries(data).filter(([, v]) => v !== undefined);
+    if (fields.length === 0) return { success: true };
+    const setClauses = fields.map(([key], i) => `${key} = $${i + 1}`).join(", ");
+    const values = fields.map(([, v]) => v);
+    values.push(id);
+    await query(`UPDATE partners SET ${setClauses} WHERE id = $${fields.length + 1}`, values);
     return { success: true };
   });
 
 export const deletePartner = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("partners").delete().eq("id", id);
-    if (error) throw new Error(error.message);
+    await query("DELETE FROM partners WHERE id = $1", [id]);
     return { success: true };
   });

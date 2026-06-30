@@ -6,7 +6,6 @@ import { listBlogs, createBlog, updateBlog, deleteBlog } from "@/lib/api/blogs.f
 import { listTestimonials, createTestimonial, updateTestimonial, deleteTestimonial } from "@/lib/api/testimonials.functions";
 import { listGallery, createGalleryItem, updateGalleryItem, deleteGalleryItem } from "@/lib/api/gallery.functions";
 import { listPartners, createPartner, updatePartner, deletePartner } from "@/lib/api/partners.functions";
-import type { Tables } from "@/integrations/supabase/types";
 
 export type FieldType = "text" | "textarea" | "tags" | "select" | "checkbox" | "number";
 

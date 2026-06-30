@@ -1,28 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, ChevronDown, Shield } from "lucide-react";
+import { Menu, X, Shield } from "lucide-react";
 import { brand, navLinks } from "@/lib/site-data";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const { session } = useAuth();
-
-  useEffect(() => {
-    if (session?.user) {
-      supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id)
-        .maybeSingle()
-        .then(({ data }) => setShowAdmin(data?.role === "admin"));
-    } else {
-      setShowAdmin(false);
-    }
-  }, [session]);
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -55,7 +40,7 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
-          {showAdmin && (
+          {isAdmin && (
             <Link
               to="/admin"
               className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand/10"
@@ -93,7 +78,7 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
-            {showAdmin && (
+            {isAdmin && (
               <Link
                 to="/admin"
                 onClick={() => setOpen(false)}

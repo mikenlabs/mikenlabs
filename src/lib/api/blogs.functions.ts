@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { query } from "@/lib/db.server";
 
 const blogSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -19,57 +20,47 @@ const blogUpdateSchema = blogSchema.partial();
 
 export const listBlogs = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("blogs")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data;
+    return await query("SELECT * FROM blogs ORDER BY created_at DESC");
   });
 
 export const listBlogsPublic = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("blogs")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data;
+    return await query("SELECT * FROM blogs ORDER BY created_at DESC");
   });
 
 export const createBlog = createServerFn({ method: "POST" })
   .inputValidator(blogSchema)
   .handler(async ({ data }) => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("blogs").insert(data as never);
-    if (error) throw new Error(error.message);
+    await query(
+      "INSERT INTO blogs (title, slug, excerpt, content, category, tags, status, image_url, author, featured, published_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
+      [data.title, data.slug, data.excerpt, data.content, data.category, data.tags, data.status, data.image_url, data.author, data.featured, data.published_at]
+    );
     return { success: true };
   });
 
 export const updateBlog = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string(), data: blogUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("blogs").update(data as never).eq("id", id);
-    if (error) throw new Error(error.message);
+    const fields = Object.entries(data).filter(([, v]) => v !== undefined);
+    if (fields.length === 0) return { success: true };
+    const setClauses = fields.map(([key], i) => `${key} = $${i + 1}`).join(", ");
+    const values = fields.map(([, v]) => v);
+    values.push(id);
+    await query(`UPDATE blogs SET ${setClauses} WHERE id = $${fields.length + 1}`, values);
     return { success: true };
   });
 
 export const deleteBlog = createServerFn({ method: "POST" })
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
-    const { requireAdmin } = await import("@/lib/auth-helpers.server");
+    const { requireAdmin } = await import("@/lib/auth.server");
     await requireAdmin();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("blogs").delete().eq("id", id);
-    if (error) throw new Error(error.message);
+    await query("DELETE FROM blogs WHERE id = $1", [id]);
     return { success: true };
   });

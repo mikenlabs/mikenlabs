@@ -12,7 +12,6 @@ import { listPartners } from "@/lib/api/partners.functions";
 import { listContactSubmissions } from "@/lib/api/contact.functions";
 import { listSubscribers } from "@/lib/api/newsletter.functions";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({
@@ -60,11 +59,6 @@ function AdminDashboard() {
   const { data: partners } = useQuery({ queryKey: ["admin", "partners"], queryFn: listPartners });
   const { data: contacts } = useQuery({ queryKey: ["admin", "contacts"], queryFn: listContactSubmissions });
   const { data: subscribers } = useQuery({ queryKey: ["admin", "subscribers"], queryFn: listSubscribers });
-
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    router.navigate({ to: "/" });
-  }
 
   if (authLoading) {
     return (
@@ -176,7 +170,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   ];
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
+    const { removeToken } = useAuth();
+    removeToken();
     router.navigate({ to: "/" });
   }
 
