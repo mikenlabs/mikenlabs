@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { rateLimit } from "@/lib/rate-limit.server";
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })
   .validator(z.object({ email: z.string().email("Valid email is required") }))
   .handler(async ({ data }) => {
+    const { rateLimit } = await import("@/lib/rate-limit.server");
     rateLimit({ max: 5, windowMs: 60_000 });
     const { error } = await supabaseAdmin
       .from("newsletter_subscribers")

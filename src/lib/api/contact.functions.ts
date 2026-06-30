@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { rateLimit } from "@/lib/rate-limit.server";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
@@ -13,6 +12,7 @@ const contactSchema = z.object({
 export const submitContact = createServerFn({ method: "POST" })
   .validator(contactSchema)
   .handler(async ({ data }) => {
+    const { rateLimit } = await import("@/lib/rate-limit.server");
     rateLimit({ max: 5, windowMs: 60_000 });
     const { error } = await supabaseAdmin
       .from("contact_submissions")
