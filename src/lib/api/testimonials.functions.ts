@@ -41,7 +41,7 @@ export const listTestimonialsPublic = createServerFn({ method: "GET" })
   });
 
 export const createTestimonial = createServerFn({ method: "POST" })
-  .validator(testimonialSchema)
+  .inputValidator(testimonialSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -52,7 +52,7 @@ export const createTestimonial = createServerFn({ method: "POST" })
   });
 
 export const updateTestimonial = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: testimonialUpdateSchema }))
+  .inputValidator(z.object({ id: z.string(), data: testimonialUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -63,7 +63,7 @@ export const updateTestimonial = createServerFn({ method: "POST" })
   });
 
 export const deleteTestimonial = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

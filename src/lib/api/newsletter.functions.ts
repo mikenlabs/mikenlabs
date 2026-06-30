@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 export const subscribeNewsletter = createServerFn({ method: "POST" })
-  .validator(z.object({ email: z.string().email("Valid email is required") }))
+  .inputValidator(z.object({ email: z.string().email("Valid email is required") }))
   .handler(async ({ data }) => {
     const { rateLimit } = await import("@/lib/rate-limit.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -33,7 +33,7 @@ export const listSubscribers = createServerFn({ method: "GET" })
   });
 
 export const deleteSubscriber = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

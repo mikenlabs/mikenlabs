@@ -37,7 +37,7 @@ export const listStandardsPublic = createServerFn({ method: "GET" })
   });
 
 export const createStandard = createServerFn({ method: "POST" })
-  .validator(standardSchema)
+  .inputValidator(standardSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -48,7 +48,7 @@ export const createStandard = createServerFn({ method: "POST" })
   });
 
 export const updateStandard = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: standardUpdateSchema }))
+  .inputValidator(z.object({ id: z.string(), data: standardUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -59,7 +59,7 @@ export const updateStandard = createServerFn({ method: "POST" })
   });
 
 export const deleteStandard = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

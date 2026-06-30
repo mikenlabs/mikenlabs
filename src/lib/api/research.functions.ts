@@ -44,7 +44,7 @@ export const listResearchPublic = createServerFn({ method: "GET" })
   });
 
 export const createResearch = createServerFn({ method: "POST" })
-  .validator(researchSchema)
+  .inputValidator(researchSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -55,7 +55,7 @@ export const createResearch = createServerFn({ method: "POST" })
   });
 
 export const updateResearch = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: researchUpdateSchema }))
+  .inputValidator(z.object({ id: z.string(), data: researchUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -66,7 +66,7 @@ export const updateResearch = createServerFn({ method: "POST" })
   });
 
 export const deleteResearch = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

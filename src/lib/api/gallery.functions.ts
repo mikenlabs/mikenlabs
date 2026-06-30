@@ -40,7 +40,7 @@ export const listGalleryPublic = createServerFn({ method: "GET" })
   });
 
 export const createGalleryItem = createServerFn({ method: "POST" })
-  .validator(gallerySchema)
+  .inputValidator(gallerySchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -51,7 +51,7 @@ export const createGalleryItem = createServerFn({ method: "POST" })
   });
 
 export const updateGalleryItem = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: galleryUpdateSchema }))
+  .inputValidator(z.object({ id: z.string(), data: galleryUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -62,7 +62,7 @@ export const updateGalleryItem = createServerFn({ method: "POST" })
   });
 
 export const deleteGalleryItem = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

@@ -9,7 +9,7 @@ const contactSchema = z.object({
 });
 
 export const submitContact = createServerFn({ method: "POST" })
-  .validator(contactSchema)
+  .inputValidator(contactSchema)
   .handler(async ({ data }) => {
     const { rateLimit } = await import("@/lib/rate-limit.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -35,7 +35,7 @@ export const listContactSubmissions = createServerFn({ method: "GET" })
   });
 
 export const deleteContactSubmission = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

@@ -1,15 +1,11 @@
-import logoAsset from "@/assets/miken-logo.jpg.asset.json";
-import coverAsset from "@/assets/miken-cover.png.asset.json";
-import flyerAsset from "@/assets/miken-flyer.png.asset.json";
-
 export const brand = {
   name: "Miken Labs",
   tagline: "Train It • Build It • Ship It",
   mission: "Empowering individuals and businesses through practical technology education, software engineering, AI innovation, and digital transformation.",
   founder: "Uche Michael Ikenna",
-  logo: logoAsset.url,
-  cover: coverAsset.url,
-  flyer: flyerAsset.url,
+  logo: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%230B5FA5'/%3E%3Ctext x='50%25' y='55%25' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='800' font-size='26'%3EML%3C/text%3E%3C/svg%3E",
+  cover: "/favicon.ico",
+  flyer: "/favicon.ico",
   email: "mikenlabs@gmail.com",
   phone: "+234 813 200 3036",
   site: "https://mikenlabs.com",

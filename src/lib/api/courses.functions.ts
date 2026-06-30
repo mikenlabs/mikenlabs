@@ -45,7 +45,7 @@ export const listCoursesPublic = createServerFn({ method: "GET" })
   });
 
 export const createCourse = createServerFn({ method: "POST" })
-  .validator(courseSchema)
+  .inputValidator(courseSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -56,7 +56,7 @@ export const createCourse = createServerFn({ method: "POST" })
   });
 
 export const updateCourse = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: courseUpdateSchema }))
+  .inputValidator(z.object({ id: z.string(), data: courseUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -67,7 +67,7 @@ export const updateCourse = createServerFn({ method: "POST" })
   });
 
 export const deleteCourse = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

@@ -47,7 +47,7 @@ export const listProductsPublic = createServerFn({ method: "GET" })
   });
 
 export const createProduct = createServerFn({ method: "POST" })
-  .validator(productSchema)
+  .inputValidator(productSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -58,7 +58,7 @@ export const createProduct = createServerFn({ method: "POST" })
   });
 
 export const updateProduct = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: productUpdateSchema }))
+  .inputValidator(z.object({ id: z.string(), data: productUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -69,7 +69,7 @@ export const updateProduct = createServerFn({ method: "POST" })
   });
 
 export const deleteProduct = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

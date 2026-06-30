@@ -40,7 +40,7 @@ export const listPartnersPublic = createServerFn({ method: "GET" })
   });
 
 export const createPartner = createServerFn({ method: "POST" })
-  .validator(partnerSchema)
+  .inputValidator(partnerSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -51,7 +51,7 @@ export const createPartner = createServerFn({ method: "POST" })
   });
 
 export const updatePartner = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: partnerUpdateSchema }))
+  .inputValidator(z.object({ id: z.string(), data: partnerUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -62,7 +62,7 @@ export const updatePartner = createServerFn({ method: "POST" })
   });
 
 export const deletePartner = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();

@@ -42,7 +42,7 @@ export const listBlogsPublic = createServerFn({ method: "GET" })
   });
 
 export const createBlog = createServerFn({ method: "POST" })
-  .validator(blogSchema)
+  .inputValidator(blogSchema)
   .handler(async ({ data }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -53,7 +53,7 @@ export const createBlog = createServerFn({ method: "POST" })
   });
 
 export const updateBlog = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string(), data: blogUpdateSchema }))
+  .inputValidator(z.object({ id: z.string(), data: blogUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
@@ -64,7 +64,7 @@ export const updateBlog = createServerFn({ method: "POST" })
   });
 
 export const deleteBlog = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.string() }))
+  .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
     const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
