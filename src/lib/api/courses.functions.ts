@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireAdmin } from "@/lib/auth-helpers.server";
 
 const courseSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -22,6 +21,7 @@ const courseUpdateSchema = courseSchema.partial();
 
 export const listCourses = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { data, error } = await supabaseAdmin
       .from("courses")
@@ -46,6 +46,7 @@ export const listCoursesPublic = createServerFn({ method: "GET" })
 export const createCourse = createServerFn({ method: "POST" })
   .validator(courseSchema)
   .handler(async ({ data }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("courses").insert(data as never);
     if (error) throw new Error(error.message);
@@ -55,6 +56,7 @@ export const createCourse = createServerFn({ method: "POST" })
 export const updateCourse = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string(), data: courseUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("courses").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
@@ -64,6 +66,7 @@ export const updateCourse = createServerFn({ method: "POST" })
 export const deleteCourse = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("courses").delete().eq("id", id);
     if (error) throw new Error(error.message);

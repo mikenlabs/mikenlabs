@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireAdmin } from "@/lib/auth-helpers.server";
 
 const researchSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -21,6 +20,7 @@ const researchUpdateSchema = researchSchema.partial();
 
 export const listResearch = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { data, error } = await supabaseAdmin
       .from("research")
@@ -45,6 +45,7 @@ export const listResearchPublic = createServerFn({ method: "GET" })
 export const createResearch = createServerFn({ method: "POST" })
   .validator(researchSchema)
   .handler(async ({ data }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("research").insert(data as never);
     if (error) throw new Error(error.message);
@@ -54,6 +55,7 @@ export const createResearch = createServerFn({ method: "POST" })
 export const updateResearch = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string(), data: researchUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("research").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
@@ -63,6 +65,7 @@ export const updateResearch = createServerFn({ method: "POST" })
 export const deleteResearch = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("research").delete().eq("id", id);
     if (error) throw new Error(error.message);

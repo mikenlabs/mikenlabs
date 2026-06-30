@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireAdmin } from "@/lib/auth-helpers.server";
 
 const gallerySchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -17,6 +16,7 @@ const galleryUpdateSchema = gallerySchema.partial();
 
 export const listGallery = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { data, error } = await supabaseAdmin
       .from("gallery")
@@ -41,6 +41,7 @@ export const listGalleryPublic = createServerFn({ method: "GET" })
 export const createGalleryItem = createServerFn({ method: "POST" })
   .validator(gallerySchema)
   .handler(async ({ data }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("gallery").insert(data as never);
     if (error) throw new Error(error.message);
@@ -50,6 +51,7 @@ export const createGalleryItem = createServerFn({ method: "POST" })
 export const updateGalleryItem = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string(), data: galleryUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("gallery").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
@@ -59,6 +61,7 @@ export const updateGalleryItem = createServerFn({ method: "POST" })
 export const deleteGalleryItem = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("gallery").delete().eq("id", id);
     if (error) throw new Error(error.message);

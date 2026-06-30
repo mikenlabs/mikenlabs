@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireAdmin } from "@/lib/auth-helpers.server";
 
 const blogSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -21,6 +20,7 @@ const blogUpdateSchema = blogSchema.partial();
 
 export const listBlogs = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { data, error } = await supabaseAdmin
       .from("blogs")
@@ -43,6 +43,7 @@ export const listBlogsPublic = createServerFn({ method: "GET" })
 export const createBlog = createServerFn({ method: "POST" })
   .validator(blogSchema)
   .handler(async ({ data }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("blogs").insert(data as never);
     if (error) throw new Error(error.message);
@@ -52,6 +53,7 @@ export const createBlog = createServerFn({ method: "POST" })
 export const updateBlog = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string(), data: blogUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("blogs").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
@@ -61,6 +63,7 @@ export const updateBlog = createServerFn({ method: "POST" })
 export const deleteBlog = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("blogs").delete().eq("id", id);
     if (error) throw new Error(error.message);

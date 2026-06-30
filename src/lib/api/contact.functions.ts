@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireAdmin } from "@/lib/auth-helpers.server";
 import { rateLimit } from "@/lib/rate-limit.server";
 
 const contactSchema = z.object({
@@ -24,6 +23,7 @@ export const submitContact = createServerFn({ method: "POST" })
 
 export const listContactSubmissions = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { data, error } = await supabaseAdmin
       .from("contact_submissions")
@@ -36,6 +36,7 @@ export const listContactSubmissions = createServerFn({ method: "GET" })
 export const deleteContactSubmission = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("contact_submissions").delete().eq("id", id);
     if (error) throw new Error(error.message);

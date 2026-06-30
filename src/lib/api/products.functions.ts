@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireAdmin } from "@/lib/auth-helpers.server";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -24,6 +23,7 @@ const productUpdateSchema = productSchema.partial();
 
 export const listProducts = createServerFn({ method: "GET" })
   .handler(async () => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { data, error } = await supabaseAdmin
       .from("products")
@@ -48,6 +48,7 @@ export const listProductsPublic = createServerFn({ method: "GET" })
 export const createProduct = createServerFn({ method: "POST" })
   .validator(productSchema)
   .handler(async ({ data }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("products").insert(data as never);
     if (error) throw new Error(error.message);
@@ -57,6 +58,7 @@ export const createProduct = createServerFn({ method: "POST" })
 export const updateProduct = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string(), data: productUpdateSchema }))
   .handler(async ({ data: { id, data } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("products").update(data as never).eq("id", id);
     if (error) throw new Error(error.message);
@@ -66,6 +68,7 @@ export const updateProduct = createServerFn({ method: "POST" })
 export const deleteProduct = createServerFn({ method: "POST" })
   .validator(z.object({ id: z.string() }))
   .handler(async ({ data: { id } }) => {
+    const { requireAdmin } = await import("@/lib/auth-helpers.server");
     await requireAdmin();
     const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
     if (error) throw new Error(error.message);
